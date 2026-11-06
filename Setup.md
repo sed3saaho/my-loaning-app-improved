@@ -18,3 +18,10 @@ npm install
 ```Bash
 ./start.sh
 ```
+If you ever want to retrieve updates from the original repository, you can use:
+
+
+```bash
+git fetch upstream
+```
+You can then inspect the changes before deciding whether to merge them.

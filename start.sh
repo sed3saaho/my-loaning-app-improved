@@ -2,7 +2,6 @@
 set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-export PATH="$DIR/.node_runtime/bin:$PATH"
 
 echo "=========================================================="
 echo "    Starting Keith Capital Loan Management System"
@@ -13,19 +12,27 @@ fuser -k 8001/tcp 2>/dev/null || true
 fuser -k 5173/tcp 2>/dev/null || true
 sleep 1
 
+# Detect Python binary
+if [ -f "$DIR/backend/.venv/bin/python" ]; then
+    PYTHON_BIN="$DIR/backend/.venv/bin/python"
+elif [ -f "$DIR/venv/bin/python" ]; then
+    PYTHON_BIN="$DIR/venv/bin/python"
+else
+    PYTHON_BIN="python3"
+fi
+
 # 1. Start Python FastAPI Backend on port 8001
 echo "[1/2] Starting Python FastAPI Backend on http://localhost:8001..."
 cd "$DIR/backend"
-"$DIR/backend/.venv/bin/python" -m uvicorn main:app --host 0.0.0.0 --port 8001 &
+"$PYTHON_BIN" -m uvicorn main:app --host 0.0.0.0 --port 8001 &
 BACKEND_PID=$!
 
-# Wait briefly for backend
 sleep 2
 
 # 2. Start React Frontend on port 5173
 echo "[2/2] Starting React Frontend on http://localhost:5173..."
 cd "$DIR/frontend"
-"$DIR/.node_runtime/bin/npm" run dev -- --host 0.0.0.0 &
+npm run dev -- --host 0.0.0.0 &
 FRONTEND_PID=$!
 
 echo ""
